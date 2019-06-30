@@ -28,16 +28,15 @@
 # Makefile.
 ##
 
-# if use clang++, "omp.h" not found error would occur... 
 #CXX = clang++
 CXX ?= g++
-CXXFLAGS=-std=c++14 -O3 -fopenmp
+CXXFLAGS=-std=c++14 -O3 
 LDFLAGS=-fopenmp
 
 OBJECTS=stockast.o
 
 stockast: $(OBJECTS)
-	$(CXX) $(CXXFLAGS) $(OBJECTS) -o stockast $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(OBJECTS) -o stockast
 
 stockast.o: stockast.cpp
 

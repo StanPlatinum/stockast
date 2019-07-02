@@ -197,43 +197,24 @@ int main(int argc, char **argv)
 	std::cout << "  Using market volatility = " << volatility << std::endl;
 
 	int i;
-	//! Parallel region with each thread having its own instance of variable 'i',
 #pragma omp parallel private(i)
 	{
-		//! Only one thread (irrespective of thread id) handles this region
 #pragma omp single
 		{
-			//int numThreads = omp_get_num_threads();	//! Number of threads
-			//std::cout << "  Using " << numThreads << " thread(s)\n\n";
 			std::cout << "  Have patience! Computing..";
-			//omp_set_num_threads(numThreads);
 		}
 
-		/**
-		Parallel for loop with dynamic scheduling, i.e. each thread
-		grabs "chunk" iterations until all iterations are done.
-		Faster threads are assigned more iterations (not Round Robin)
-		*/
 #pragma omp for schedule(dynamic)
 		for (i = 0; i < outLoops; i++)
 		{
-			/**
-			Using Black Scholes model to get stock price every iteration
-			Returns data as a column vector having rows=timesteps
-			*/
 			for (int j = 0; j < inLoops; j++)
 				stock[j] = runBlackScholesModel(spotPrice, timesteps, riskRate, volatility);
 
-			//! Stores average of all estimated stock-price arrays
 			avgStock[i] = find2DMean(stock, inLoops, timesteps);
 		}
-		//! --> Implicit omp barrier <--
 	}
-
-	//! Average of all the average arrays
 	optStock = find2DMean(avgStock, outLoops, timesteps);
 
-	//! Write optimal outcome to disk
 	std::ofstream fp;
 	fp.open("opt.csv", std::ofstream::out);
 	if (!fp.is_open())

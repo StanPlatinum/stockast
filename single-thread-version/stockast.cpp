@@ -1,36 +1,36 @@
 /**
-* @file This file is part of stockast.
-*
-* @section LICENSE
-* MIT License
-*
-* Copyright (c) 2017-2019 Rajdeep Konwar
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in all
-* copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-* SOFTWARE.
-*
-* @section DESCRIPTION
-* Stock Market Forecasting using parallel Monte-Carlo simulations
-* (src:wikipedia) The Black–Scholes model assumes that the market consists of
-* at least one risky asset, usually called the stock, and one riskless asset,
-* usually called the money market, cash, or bond. The rate of return on the
-* riskless asset is constant and thus called the risk-free interest rate.
-**/
+ * @file This file is part of stockast.
+ *
+ * @section LICENSE
+ * MIT License
+ *
+ * Copyright (c) 2017-2019 Rajdeep Konwar
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * @section DESCRIPTION
+ * Stock Market Forecasting using parallel Monte-Carlo simulations
+ * (src:wikipedia) The Black–Scholes model assumes that the market consists of
+ * at least one risky asset, usually called the stock, and one riskless asset,
+ * usually called the money market, cash, or bond. The rate of return on the
+ * riskless asset is constant and thus called the risk-free interest rate.
+ **/
 
 //! Header files
 #include <iostream>
@@ -96,9 +96,9 @@ float calcVolatility(float spotPrice, int timesteps)
 }
 
 /** ---------------------------------------------------------------------------
-Finds mean of a 2D array across first index (inLoops)
-M is in/outLoops and N is timesteps
-----------------------------------------------------------------------------*/
+  Finds mean of a 2D array across first index (inLoops)
+  M is in/outLoops and N is timesteps
+  ----------------------------------------------------------------------------*/
 float * find2DMean(float **matrix, int numLoops, int timesteps)
 {
 	int j;
@@ -109,28 +109,23 @@ float * find2DMean(float **matrix, int numLoops, int timesteps)
 	{
 		/**
 		A private copy of 'sum' variable is created for each thread.
-		At the end of the reduction, the reduction variable is applied to
-		all private copies of the shared variable, and the final result
-		is written to the global shared variable.
+		At the end of the reduction, the reduction variable is applied to all private copies of the shared variable, and the final result is written to the global shared variable.
 		*/
-#pragma omp parallel for private(j) reduction(+:sum)
 		for (j = 0; j < numLoops; j++)
 		{
 			sum += matrix[j][i];
 		}
-
 		//! Calculating average across columns
 		avg[i] = sum / numLoops;
 		sum = 0.0f;
 	}
-
 	return avg;
 }
 
 /** ---------------------------------------------------------------------------
-Generates a random number seeded by system clock based on standard
-normal distribution on taking mean 0.0 and standard deviation 1.0
-----------------------------------------------------------------------------*/
+  Generates a random number seeded by system clock based on standard
+  normal distribution on taking mean 0.0 and standard deviation 1.0
+  ----------------------------------------------------------------------------*/
 float randGen(float mean, float stdDev)
 {
 	auto seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -197,21 +192,14 @@ int main(int argc, char **argv)
 	std::cout << "  Using market volatility = " << volatility << std::endl;
 
 	int i;
-#pragma omp parallel private(i)
+	std::cout << "  Have patience! Computing..";
+
+	for (i = 0; i < outLoops; i++)
 	{
-#pragma omp single
-		{
-			std::cout << "  Have patience! Computing..";
-		}
+		for (int j = 0; j < inLoops; j++)
+			stock[j] = runBlackScholesModel(spotPrice, timesteps, riskRate, volatility);
 
-#pragma omp for schedule(dynamic)
-		for (i = 0; i < outLoops; i++)
-		{
-			for (int j = 0; j < inLoops; j++)
-				stock[j] = runBlackScholesModel(spotPrice, timesteps, riskRate, volatility);
-
-			avgStock[i] = find2DMean(stock, inLoops, timesteps);
-		}
+		avgStock[i] = find2DMean(stock, inLoops, timesteps);
 	}
 	optStock = find2DMean(avgStock, outLoops, timesteps);
 

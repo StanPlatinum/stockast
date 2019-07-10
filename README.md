@@ -1,13 +1,7 @@
 # Stockast [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FRajdeepKonwar%2Fstockast.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FRajdeepKonwar%2Fstockast?ref=badge_shield)
-## Stock Market Forecasting using Parallel (OpenMP) Monte-Carlo Simulations
-
-![alt text](https://i.imgur.com/dHf0aRO.png)
+## Stock Market Forecasting using Parallel Monte-Carlo Simulations
 
 ### Compile Instructions
-#### Windows
-* Open `stockast.sln`
-* Right-click Solution 'stockast' in the Solution Explorer and select `Retarget solution`
-* Build and run!
 
 #### Linux
 ```
@@ -16,10 +10,6 @@ make
 Type `make clean` to clean object file and executable.
 
 ### Run Instructions
-#### Windows
-Simply run from Visual Studio or double-click the executable created inside x64\\{config}\stockast.exe
-
-By default, the program will try and utilize the maximum system threads available. In order to use a specific number of threads, set the environment vairable `OMP_NUM_THREADS` equal to the number of threads you want.
 
 #### Linux
 Set the number of threads to be used for computation,
@@ -31,8 +21,6 @@ Then run the program
 ```
 ./stockast
 ```
-
-![alt text](https://i.imgur.com/FpgwDyg.png)
 
 ### General info
 * The input file "ml_data.csv" contains the stock-price values for 3 hours prior to run-time; this acts as the history-data and helps estimate the market volatility.

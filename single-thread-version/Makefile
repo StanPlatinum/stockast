@@ -30,17 +30,24 @@
 
 #CXX = clang++
 CXX ?= g++
+#CXXFLAGS=-std=c++11 -O2 
 CXXFLAGS=-std=c++14 -O3 
-LDFLAGS=-fopenmp
-
-OBJECTS=stockast.o
-
-stockast: $(OBJECTS)
-	$(CXX) $(CXXFLAGS) $(OBJECTS) -o stockast
 
 stockast.o: stockast.cpp
+stockast-no-syscall.o: stockast-no-syscall.cpp
+
+OBJECT=stockast.o
+OBJECT_NO_SYSCALL=stockast-no-syscall.o
+
+
+stockast: $(OBJECTS)
+	$(CXX) $(CXXFLAGS) $(OBJECT) -o stockast
+
+stockast-no-syscall: stockast-no-syscall.o
+	$(CXX) $(CXXFLAGS) $(OBJECT_NO_SYSCALL) -o stockast-no-syscall
+
 
 .PHONY: clean
 
 clean:
-			rm -f *.o stockast
+			rm -f *.o stockast stockast-no-syscall
